@@ -63,7 +63,11 @@ public class BookKeeperTest {
         ProductData productData = Mockito.mock(ProductData.class);
         List<RequestItem> requestItemList = new ArrayList<>(); 
         Invoice result = instance.issuance(invoiceRequest, taxPolicy);
-        when(invoiceRequest.getItems());
+        
+        when(invoiceRequest.getItems()).thenReturn(requestItemList);
+        when(invoiceRequest.getClientData()).thenReturn(clientData);
+        
+        
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

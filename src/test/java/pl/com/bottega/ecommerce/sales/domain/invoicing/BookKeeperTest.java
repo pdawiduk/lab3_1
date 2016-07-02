@@ -91,4 +91,11 @@ public class BookKeeperTest {
         Invoice result = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertThat(result.getItems().size(), is(1));
     }
+    @org.junit.Test
+    public void TestFakturyZDwomaPolami(){
+        requestItems.add(item);
+        requestItems.add(item);
+        Invoice result = bookKeeper.issuance(invoiceRequest,taxPolicy);
+        assertThat(result.getItems().size(),is(2));
+    }
 }

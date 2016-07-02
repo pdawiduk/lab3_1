@@ -29,6 +29,17 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
  * @author student
  */
 public class BookKeeperTest {
+   private InvoiceFactory invoiceFactory ;
+    private BookKeeper bookKeeper ;
+    private  Money money = new Money(0);
+    private ClientData clientData ;
+    private Tax tax = new Tax(money, "wtf");
+    private InvoiceRequest invoiceRequest ;
+    private TaxPolicy taxPolicy ;
+    private RequestItem item ;
+    private ArrayList<RequestItem> requestItems;
+    private ProductData productData;
+    private InvoiceLine invoiceLine;
     
     public BookKeeperTest() {
     }
@@ -43,6 +54,26 @@ public class BookKeeperTest {
     
     @Before
     public void setUp() {
+        invoiceFactory = new InvoiceFactory();
+        bookKeeper = new BookKeeper(invoiceFactory);
+        money = new Money(0);
+        clientData = mock(ClientData.class);
+        tax = new Tax(money, "wtf");
+        invoiceRequest = mock(InvoiceRequest.class);
+        taxPolicy = mock(TaxPolicy.class);
+        item = mock(RequestItem.class);
+        requestItems = new ArrayList<>();
+        productData = mock(ProductData.class);
+        invoiceLine = mock(InvoiceLine.class);
+
+
+        when(invoiceRequest.getItems()).thenReturn(requestItems);
+        when(invoiceRequest.getClientData()).thenReturn(clientData);
+        when(item.getProductData()).thenReturn(productData);
+        when(item.getQuantity()).thenReturn(1);
+        when(item.getTotalCost()).thenReturn(money);
+        when(productData.getType()).thenReturn(ProductType.STANDARD);
+        when(taxPolicy.calculateTax(productData.getType(), money)).thenReturn(tax);
         
     }
     
@@ -56,27 +87,6 @@ public class BookKeeperTest {
     @org.junit.Test
     public void TestFakturyZJednymPolem() {
 
-
-        InvoiceFactory invoiceFactory = new InvoiceFactory();
-        BookKeeper bookKeeper = new BookKeeper(invoiceFactory);
-        Money money = new Money(0);
-        ClientData clientData = mock(ClientData.class);
-        Tax tax = new Tax(money, "wtf");
-        InvoiceRequest invoiceRequest = mock(InvoiceRequest.class);
-        TaxPolicy taxPolicy = mock(TaxPolicy.class);
-        RequestItem item = mock(RequestItem.class);
-        ArrayList<RequestItem> requestItems = new ArrayList<>();
-        ProductData productData = mock(ProductData.class);
-        InvoiceLine invoiceLine = mock(InvoiceLine.class);
-
-
-        when(invoiceRequest.getItems()).thenReturn(requestItems);
-        when(invoiceRequest.getClientData()).thenReturn(clientData);
-        when(item.getProductData()).thenReturn(productData);
-        when(item.getQuantity()).thenReturn(1);
-        when(item.getTotalCost()).thenReturn(money);
-        when(productData.getType()).thenReturn(ProductType.STANDARD);
-        when(taxPolicy.calculateTax(productData.getType(), money)).thenReturn(tax);
         requestItems.add(item);
         Invoice result = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertThat(result.getItems().size(), is(1));

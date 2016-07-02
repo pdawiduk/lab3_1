@@ -13,10 +13,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import  org.mockito.*;
 import org.junit.Test;
+
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductData;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
+import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 
 /**
@@ -49,27 +54,31 @@ public class BookKeeperTest {
      * Test of issuance method, of class BookKeeper.
      */
     @org.junit.Test
-    public void testIssuance() {
-        
-        System.out.println("issuance");
+    public void TestFakturyZJednymPolem() {
+
+
         InvoiceFactory invoiceFactory = new InvoiceFactory();
         BookKeeper bookKeeper = new BookKeeper(invoiceFactory);
-        
-        InvoiceRequest invoiceRequest = Mockito.mock(InvoiceRequest.class);
-        TaxPolicy taxPolicy = Mockito.mock(TaxPolicy.class);
-        BookKeeper instance = Mockito.mock(BookKeeper.class);
-        Invoice expResult = Mockito.mock(Invoice.class);
-        ClientData clientData = Mockito.mock(ClientData.class);
-        ProductData productData = Mockito.mock(ProductData.class);
-        List<RequestItem> requestItemList = new ArrayList<>(); 
-        Invoice result = instance.issuance(invoiceRequest, taxPolicy);
-        
-        when(invoiceRequest.getItems()).thenReturn(requestItemList);
+        Money money = new Money(0);
+        ClientData clientData = mock(ClientData.class);
+        Tax tax = new Tax(money, "wtf");
+        InvoiceRequest invoiceRequest = mock(InvoiceRequest.class);
+        TaxPolicy taxPolicy = mock(TaxPolicy.class);
+        RequestItem item = mock(RequestItem.class);
+        ArrayList<RequestItem> requestItems = new ArrayList<>();
+        ProductData productData = mock(ProductData.class);
+        InvoiceLine invoiceLine = mock(InvoiceLine.class);
+
+
+        when(invoiceRequest.getItems()).thenReturn(requestItems);
         when(invoiceRequest.getClientData()).thenReturn(clientData);
-        
-        
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        when(item.getProductData()).thenReturn(productData);
+        when(item.getQuantity()).thenReturn(1);
+        when(item.getTotalCost()).thenReturn(money);
+        when(productData.getType()).thenReturn(ProductType.STANDARD);
+        when(taxPolicy.calculateTax(productData.getType(), money)).thenReturn(tax);
+        requestItems.add(item);
+        Invoice result = bookKeeper.issuance(invoiceRequest, taxPolicy);
+        assertThat(result.getItems().size(), is(1));
     }
-    
 }
